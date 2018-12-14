@@ -1,14 +1,50 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
-</ion-header>
+    <ion-navbar color="secondary">
+        <ion-title>My Feed Reader</ion-title>
+        <ion-buttons end>
+           <button ion-button icon-only (click)="showFilters()">
+              <ion-icon name="funnel" [style.color]="hasFilter ? 'orange' : 'inherit'"></ion-icon>
+           </button>
+        </ion-buttons> 
+        <ion-searchbar 
+          [(ngModel)]="searchTerm"
+          [formControl]="searchTermControl" 
+          [showCancelButton]=true
+          (ionInput)="filterItems()" 
+          placeholder="Type here..." >
+      </ion-searchbar>
+    </ion-navbar>
+ </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+    <ion-refresher (ionRefresh)="doRefresh($event)" [pullMin]=90>
+        <ion-refresher-content
+           pullingIcon="arrow-dropdown"
+           pullingText="Pull to refresh"
+           refreshingSpinner="circles"
+           refreshingText="Refreshing...">
+        </ion-refresher-content>
+     </ion-refresher> 
+  <ion-list>
+    <button ion-item *ngFor="let feed of feeds" (click)="itemSelected(feed.data.url)">
+      <ion-thumbnail item-left>
+        <img [src]="feed.data.thumbnail">
+      </ion-thumbnail>
+      <h2>{{feed.data.title}}</h2>
+      <div [ngSwitch]=feed.data.subreddit.toLowerCase()>
+          <p *ngSwitchCase="'askreddit'"><ion-icon name="help-circle"></ion-icon> {{feed.data.domain}}</p>
+          <p *ngSwitchCase="'gaming'"><ion-icon name="logo-playstation"></ion-icon> {{feed.data.domain}}</p>
+          <p *ngSwitchCase="'music'"><ion-icon name="musical-notes"></ion-icon> {{feed.data.domain}}</p>
+          <p *ngSwitchCase="'movies'"><ion-icon name="film"></ion-icon> {{feed.data.domain}}</p>
+          <p *ngSwitchCase="'pics'"><ion-icon name="image"></ion-icon> {{feed.data.domain}}</p>
+          <p *ngSwitchDefault>{{feed.data.domain}}</p>
+        </div>
+  </button>
+  </ion-list>
+
+  <ion-infinite-scroll (ionInfinite)="doInfinite($event)">
+    <ion-infinite-scroll-content
+      loadingText="Loading more data...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll> 
 </ion-content>
